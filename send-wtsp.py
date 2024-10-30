@@ -18,7 +18,7 @@ bind_layers(IP, Wtsp, proto=42)
 # Sending WTSP packet from h1 to h2
 def send_wtsp():
     # Create a WTSP packet
-    packet = IP(dst="10.2.2.1")/Wtsp(router_id=1, destination="10.2.2.0", metric=10, sequence=1, routing_data="Sample routing data")
+    packet = IP(dst="10.2.2.1")/Wtsp(router_id=1, destination="10.2.2.0", metric=10, sequence=1, routing_data="Hello, World!")
     
     # Send the packet from h1
     send(packet)
