@@ -1,26 +1,19 @@
+# send_wtsp.py
 from scapy.all import *
+from wtsp import Wtsp  # Import the Wtsp class from wtsp.py
 
-# Define the WTSP class as previously defined
-class Wtsp(Packet):
-    name = "WTSP"
-    fields_desc = [
-        IntField("router_id", 0),
-        IPField("destination", "0.0.0.0"),
-        IntField("metric", 0),
-        IntField("sequence", 0),
-        FieldLenField("len", None, fmt="!H", length_of="routing_data"),
-        StrLenField("routing_data", "", length_from=lambda pkt: pkt.len)
-    ]
-
-# Bind the WTSP protocol to IP with protocol number 42
-bind_layers(IP, Wtsp, proto=42)
-
-# Sending WTSP packet from h1 to h2
+# Function to send WTSP packet from h1 to h2
 def send_wtsp():
-    # Create a WTSP packet
-    packet = IP(dst="10.2.2.1")/Wtsp(router_id=1, destination="10.2.2.0", metric=10, sequence=1, routing_data="Hello, World!")
+    # Create a WTSP packet with the new fields
+    packet = IP(dst="10.2.2.1") / Wtsp(
+        router_id="10.1.1.254",     # Set router ID
+        destination="10.2.2.0/24",  # Destination network
+        hop_count=1,                # Hop count
+        sequence=1,                 # Sequence number
+        next_hop="10.2.2.254"       # Next hop IP
+    )
     
-    # Send the packet from h1
+    # Send the packet
     send(packet)
     print("WTSP packet sent!")
 
