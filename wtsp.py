@@ -13,8 +13,8 @@ class Wtsp(Packet):
     ]
 
     # Method to interpret the next packet as WTSP
-    def guess_payload_class(self, payload):
-        return Wtsp
+    #def guess_payload_class(self, payload):
+        #return Wtsp
 
 # Bind WTSP to IP layer with protocol number 42
 bind_layers(IP, Wtsp, proto=42)
