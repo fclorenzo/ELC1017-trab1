@@ -12,6 +12,7 @@ class Wtsp(Packet):
         IPField("next_hop", "0.0.0.0")             # Next hop for the destination
     ]
 
+    #Don't uncomment
     # Method to interpret the next packet as WTSP
     #def guess_payload_class(self, payload):
         #return Wtsp
