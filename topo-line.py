@@ -12,17 +12,17 @@ class BasicTopo(Topo):
         router = self.addHost('r', ip=None)
 
         # Define hosts with specific IPs and default routes through the router
-        host1 = self.addHost('h1', ip='10.1.1.1/24', defaultRoute='via 10.1.1.254')
-        host2 = self.addHost('h2', ip='10.2.2.1/24', defaultRoute='via 10.2.2.254')
+        host1 = self.addHost('h1', ip='20.1.1.1/24', defaultRoute='via 10.1.1.254')
+        host2 = self.addHost('h2', ip='20.1.1.2/24', defaultRoute='via 10.2.2.254')
 
         # Connect host1 to router with specific IPs for each interface
         self.addLink(host1, router, 
-             intfName1='h1-eth0', params1={'ip':'10.1.1.1/24'},
+             intfName1='h1-eth0', params1={'ip':'20.1.1.1/24'},
              intfName2='r-eth1', params2={'ip':'10.1.1.254/24'})
 
         # Connect host2 to router with specific IPs for each interface
         self.addLink(host2, router, 
-             intfName1='h2-eth0', params1={'ip':'10.2.2.1/24'},
+             intfName1='h2-eth0', params1={'ip':'20.1.1.2/24'},
              intfName2='r-eth2', params2={'ip':'10.2.2.254/24'})
 
 def run():
