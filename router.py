@@ -85,7 +85,7 @@ def process_routing_update(packet):
 
 # Sniff WTSP packets to receive routing updates
 def receive_routing_updates():
-    sniff(filter="ip proto 42", prn=process_routing_update, iface="r-eth0")
+    sniff(filter="ip proto 42", prn=process_routing_update, iface="any")
 
 # Start the periodic update and receiving functions in separate threads
 threading.Thread(target=update_loop).start()
