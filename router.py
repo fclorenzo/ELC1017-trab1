@@ -2,7 +2,7 @@ import argparse
 import time
 import threading
 from threading import Lock
-from scapy.all import send, sniff, IP
+from scapy.all import send, sniff, IP, Ether
 from wtsp import Wtsp
 
 # Parse command-line arguments for router configuration
@@ -35,11 +35,9 @@ def get_network_address(ip, mask):
     return f"{network_ip}{mask}"
 
 # Populate routing table with directly connected networks
-# Add the router's own network as directly connected
 router_network = get_network_address(router_id, netmask)
 routing_table[router_network] = {"next_hop": router_id, "hop_count": 0, "sequence": 0}
 
-# Add each neighbor as a directly connected network
 for neighbor_ip in neighbors:
     neighbor_network = get_network_address(neighbor_ip, netmask)
     routing_table[neighbor_network] = {"next_hop": neighbor_ip, "hop_count": 1, "sequence": 0}
@@ -50,14 +48,14 @@ for dest, info in routing_table.items():
 
 # Function to send routing updates to neighbors
 def send_routing_update():
-    with routing_table_lock:  # Acquire lock to safely access routing_table
+    with routing_table_lock:
         for dest, route_info in routing_table.items():
             for neighbor_ip in neighbors:
                 packet = IP(dst=neighbor_ip) / Wtsp(
                     router_id=router_id,
                     next_hop=route_info["next_hop"],
                     destination=dest,
-                    hop_count=route_info["hop_count"] + 1,  # Increment hop count
+                    hop_count=route_info["hop_count"] + 1,
                     sequence=route_info["sequence"]
                 )
                 send(packet)
@@ -72,16 +70,13 @@ def update_loop():
 # Function to process incoming WTSP packets
 def process_routing_update(packet):
     if Wtsp in packet:
-        # Extract routing data from WTSP packet
         received_router_id = packet[Wtsp].router_id
         destination = packet[Wtsp].destination
         next_hop = received_router_id
         hop_count = packet[Wtsp].hop_count
         sequence = packet[Wtsp].sequence
 
-        # Use the lock when updating routing_table
         with routing_table_lock:
-            # Check if we should update the routing table
             if destination not in routing_table or \
                routing_table[destination]["hop_count"] > hop_count or \
                routing_table[destination]["sequence"] < sequence:
@@ -96,6 +91,25 @@ def process_routing_update(packet):
 def receive_routing_updates():
     sniff(filter="ip proto 42", prn=process_routing_update, iface=sniff_ifaces)
 
-# Start the periodic update and receiving functions in separate threads
+# Function to forward packets based on the routing table
+def forward_packet(packet):
+    if IP in packet:
+        dest_ip = packet[IP].dst
+        with routing_table_lock:
+            for network, info in routing_table.items():
+                if dest_ip in network:
+                    next_hop = info["next_hop"]
+                    packet[Ether].dst = get_next_hop_mac(next_hop)  # Define or implement this function
+                    sendp(packet, iface=get_iface_for_next_hop(next_hop))  # Define or implement this function
+                    print(f"Forwarded packet to {dest_ip} via next hop {next_hop}")
+                    return
+        print(f"No route to {dest_ip}; dropping packet.")
+
+# Sniff IP packets and forward them if a route exists
+def packet_forwarding_loop():
+    sniff(filter="ip", prn=forward_packet, iface=sniff_ifaces)
+
+# Start the periodic update, receiving, and forwarding functions in separate threads
 threading.Thread(target=update_loop).start()
 threading.Thread(target=receive_routing_updates).start()
+threading.Thread(target=packet_forwarding_loop).start()
