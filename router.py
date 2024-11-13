@@ -9,12 +9,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--router_id", required=True, help="Router's IP address for identification")
 parser.add_argument("--neighbors", required=True, help="Comma-separated list of neighbor IPs")
 parser.add_argument("--netmask", required=True, help="Subnet mask, e.g., /24 or /30")
+parser.add_argument("--sniff_ifaces", required=True, help="Comma-separated list of interfaces to sniff")
 args = parser.parse_args()
 
-# Assign router_id, neighbors, and netmask from arguments
+# Assign router_id, neighbors, netmask, and sniff interfaces from arguments
 router_id = args.router_id
 neighbors = args.neighbors.split(",")
 netmask = args.netmask
+sniff_ifaces = args.sniff_ifaces.split(",")  # Split comma-separated interfaces into a list
 
 # Initialize routing table with directly connected networks
 routing_table = {}
@@ -83,9 +85,9 @@ def process_routing_update(packet):
             }
             print(f"Updated route to {destination}: {routing_table[destination]}")
 
-# Sniff WTSP packets to receive routing updates
+# Sniff WTSP packets to receive routing updates on specified interfaces
 def receive_routing_updates():
-    sniff(filter="ip proto 42", prn=process_routing_update, iface="r-eth0")
+    sniff(filter="ip proto 42", prn=process_routing_update, iface=sniff_ifaces)
 
 # Start the periodic update and receiving functions in separate threads
 threading.Thread(target=update_loop).start()
