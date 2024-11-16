@@ -1,0 +1,3 @@
+r1 python3 router.py --router_id "10.1.1.254" --neighbors "10.1.2.2,10.3.1.2" --netmask "/24" --sniff_ifaces "r1-eth0,r1-eth1,r1-eth2"
+r2 python3 router.py --router_id "10.2.2.254" --neighbors "10.1.2.1,10.2.3.2" --netmask "/24" --sniff_ifaces "r2-eth0,r2-eth1,r2-eth2"
+r3 python3 router.py --router_id "10.3.3.254" --neighbors "10.2.3.1,10.3.1.1" --netmask "/24" --sniff_ifaces "r3-eth0,r3-eth1,r3-eth2"
