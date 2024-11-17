@@ -37,7 +37,7 @@ def run():
             v.cmd("ethtool -K " + intf.name + " tx off rx off")
 
     # Enable IP forwarding on all routers
-    for router_name in ['r1', 'r2', 'r3']:
+    for router_name in ['r1', 'r2']:
         router = net.get(router_name)
         router.cmd("sysctl -w net.ipv4.ip_forward=1")
 
