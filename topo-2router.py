@@ -23,7 +23,7 @@ class MultiRouterTopo(Topo):
         self.addLink(h2, r2, intfName1="h2-eth0", params1={"ip": "10.2.2.1/24"},
                      intfName2="r2-eth0", params2={"ip": "10.2.2.254/24"})
 
-#Links between routers (forming a triangle topology)
+#Links between routers
         self.addLink(r1, r2, intfName1="r1-eth1", params1={"ip": "10.1.2.1/24"},
                      intfName2="r2-eth1", params2={"ip": "10.1.2.2/24"})
 

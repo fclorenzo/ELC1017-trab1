@@ -1,8 +1,10 @@
+#router1.py
 import time
 import threading
 from threading import Lock
 from scapy.all import send, sniff, IP
 from wtsp import Wtsp
+from forward import forward_packet
 
 # Hardcoded router configuration
 router_id = "10.1.1.254"
@@ -14,6 +16,12 @@ routing_table = {
     "10.1.1.0/24": {"next_hop": router_id, "hop_count": 0, "sequence": 0},
     "10.1.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 1, "sequence": 0},
     "10.2.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 2, "sequence": 0},  # Learned route
+}
+
+# Interface mapping
+interface_mapping = {
+    "r1-eth0": "10.1.1.0/24",
+    "r1-eth1": "10.1.2.0/24",
 }
 
 # Initialize a lock to control access to the routing table
@@ -71,6 +79,13 @@ def process_routing_update(packet):
 def receive_routing_updates():
     sniff(filter="ip proto 42", prn=process_routing_update, iface=sniff_ifaces)
 
+# Sniff and forward packets
+def packet_forwarding_loop():
+    sniff(filter="ip", prn=lambda pkt: forward_packet(pkt, routing_table, interface_mapping), iface=sniff_ifaces)
+
+print(f"Router {router_id}: Starting forwarding loop...")
+
 # Start the periodic update and receiving functions in separate threads
 threading.Thread(target=update_loop).start()
 threading.Thread(target=receive_routing_updates).start()
+threading.Thread(target=packet_forwarding_loop, daemon=True).start()
