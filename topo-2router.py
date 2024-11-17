@@ -5,7 +5,7 @@ from mininet.log import setLogLevel, info
 from mininet.cli import CLI
 
 class MultiRouterTopo(Topo):
-    "A topology with three interconnected routers and one host per router."
+    "A topology with 2 interconnected routers and one host per router."
 
     def build(self, **_opts):
         # Define routers

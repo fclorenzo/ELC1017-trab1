@@ -1,48 +1,23 @@
-import argparse
 import time
 import threading
 from threading import Lock
 from scapy.all import send, sniff, IP
 from wtsp import Wtsp
 
-# Parse command-line arguments for router configuration
-parser = argparse.ArgumentParser()
-parser.add_argument("--router_id", required=True, help="Router's IP address for identification")
-parser.add_argument("--neighbors", required=True, help="Comma-separated list of neighbor IPs")
-parser.add_argument("--netmask", required=True, help="Subnet mask, e.g., /24 or /30")
-parser.add_argument("--sniff_ifaces", required=True, help="Comma-separated list of interfaces to sniff")
-args = parser.parse_args()
-
-# Assign router_id, neighbors, netmask, and sniff interfaces from arguments
-router_id = args.router_id
-neighbors = args.neighbors.split(",")
-netmask = args.netmask
-sniff_ifaces = args.sniff_ifaces.split(",")  # Split comma-separated interfaces into a list
+# Hardcoded router configuration
+router_id = "10.1.1.254"
+neighbors = ["10.1.2.2"]
+sniff_ifaces = ["r1-eth0", "r1-eth1"]
 
 # Initialize routing table with directly connected networks
-routing_table = {}
+routing_table = {
+    "10.1.1.0/24": {"next_hop": router_id, "hop_count": 0, "sequence": 0},
+    "10.1.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 1, "sequence": 0},
+    "10.2.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 2, "sequence": 0},  # Learned route
+}
 
 # Initialize a lock to control access to the routing table
 routing_table_lock = Lock()
-
-# Helper function to derive the network address based on an IP address and netmask
-def get_network_address(ip, mask):
-    ip_parts = ip.split(".")
-    mask_bits = int(mask.strip("/"))
-    network_bits = "".join([f"{int(octet):08b}" for octet in ip_parts])[:mask_bits]
-    network_bits = network_bits.ljust(32, "0")  # Fill remaining bits with 0s
-    network_ip = ".".join([str(int(network_bits[i:i+8], 2)) for i in range(0, 32, 8)])
-    return f"{network_ip}{mask}"
-
-# Populate routing table with directly connected networks
-# Add the router's own network as directly connected
-router_network = get_network_address(router_id, netmask)
-routing_table[router_network] = {"next_hop": router_id, "hop_count": 0, "sequence": 0}
-
-# Add each neighbor as a directly connected network
-for neighbor_ip in neighbors:
-    neighbor_network = get_network_address(neighbor_ip, netmask)
-    routing_table[neighbor_network] = {"next_hop": neighbor_ip, "hop_count": 1, "sequence": 0}
 
 print(f"Initialized routing table for router {router_id}:")
 for dest, info in routing_table.items():
