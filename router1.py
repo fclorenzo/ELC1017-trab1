@@ -15,7 +15,6 @@ sniff_ifaces = ["r1-eth0", "r1-eth1"]
 routing_table = {
     "10.1.1.0/24": {"next_hop": router_id, "hop_count": 0, "sequence": 0},
     "10.1.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 1, "sequence": 0},
-    "10.2.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 2, "sequence": 0},  # Learned route
 }
 
 # Interface mapping
@@ -64,7 +63,7 @@ def process_routing_update(packet):
 
         # Use the lock when updating routing_table
         with routing_table_lock:
-            # Check if we should update the routing table
+            # Check if the routing table should be updated
             if destination not in routing_table or \
                routing_table[destination]["hop_count"] > hop_count or \
                routing_table[destination]["sequence"] < sequence:
