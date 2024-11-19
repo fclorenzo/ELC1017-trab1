@@ -14,7 +14,7 @@ sniff_ifaces = ["r1-eth0", "r1-eth1"]
 # Initialize routing table with directly connected networks
 routing_table = {
     "10.1.1.0/24": {"next_hop": router_id, "hop_count": 0, "sequence": 0},
-    "10.1.2.0/24": {"next_hop": "10.1.2.2", "hop_count": 1, "sequence": 0},
+    "10.2.2.0/24": {"next_hop": "10.2.2.2", "hop_count": 0, "sequence": 0},
 }
 
 # Interface mapping

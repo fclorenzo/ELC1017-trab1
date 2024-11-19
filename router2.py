@@ -14,8 +14,7 @@ sniff_ifaces = ["r2-eth0", "r2-eth1"]
 # Initialize routing table with directly connected networks
 routing_table = {
     "10.2.2.0/24": {"next_hop": router_id, "hop_count": 0, "sequence": 0},
-    "10.1.2.0/24": {"next_hop": "10.1.2.1", "hop_count": 1, "sequence": 0},
-    "10.1.1.0/24": {"next_hop": "10.1.2.1", "hop_count": 2, "sequence": 0},  # Learned route
+    "10.1.1.0/24": {"next_hop": "10.1.2.1", "hop_count": 0, "sequence": 0},
 }
 
 # Initialize a lock to control access to the routing table
