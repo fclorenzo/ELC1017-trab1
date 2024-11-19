@@ -7,7 +7,7 @@ from wtsp import Wtsp
 from forward import forward_packet
 
 # Hardcoded router configuration
-router_id = "10.1.1.254"
+router_id = "10.1.2.1"
 neighbors = ["10.1.2.2"]
 sniff_ifaces = ["r1-eth0", "r1-eth1"]
 
